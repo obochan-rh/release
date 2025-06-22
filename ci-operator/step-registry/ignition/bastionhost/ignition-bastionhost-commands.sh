@@ -123,7 +123,11 @@ RestartSec=30
 WantedBy=multi-user.target
 EOF
 
-PROXY_CREDENTIAL_ARP1=$(< /var/run/vault/proxy/proxy_creds_encrypted_apr1)
+if [[ "${CUSTOM_PROXY_CREDENTIAL}" == "true" ]]; then
+    PROXY_CREDENTIAL_ARP1=$(< /var/run/vault/proxy/custom_proxy_creds_encrypted_apr1)
+else
+    PROXY_CREDENTIAL_ARP1=$(< /var/run/vault/proxy/proxy_creds_encrypted_apr1)
+fi
 PROXY_CREDENTIAL_CONTENT="$(echo -e ${PROXY_CREDENTIAL_ARP1} | base64 -w0)"
 PROXY_CONFIG_CONTENT=$(cat ${workdir}/squid.conf | base64 -w0)
 PROXY_SERVICE_CONTENT=$(sed ':a;N;$!ba;s/\n/\\n/g' ${workdir}/squid.service | sed 's/\"/\\"/g')
@@ -247,7 +251,11 @@ cat > "${rsyncd_ignition_patch}" << EOF
 EOF
 
 # patch rsync setting to ignition
-patch_ignition_file "${bastion_ignition_file}" "${rsyncd_ignition_patch}"
+if [[ "${CLUSTER_TYPE}" == "ibmcloud" ]]; then
+  echo "ignore the rsyncd_ignition_patch in ibmcloud, ref SPLAT-2243"
+else
+  patch_ignition_file "${bastion_ignition_file}" "${rsyncd_ignition_patch}"
+fi
 rm -f "${rsyncd_ignition_patch}"
 
 
@@ -328,8 +336,13 @@ EOF
 }
 
 REGISTRY_PASSWORD_CONTENT=$(cat "/var/run/vault/mirror-registry/registry_creds_encrypted_htpasswd" | base64 -w0)
-REGISTRY_CRT_CONTENT=$(cat "/var/run/vault/mirror-registry/server_domain.crt" | base64 -w0)
-REGISTRY_KEY_CONTENT=$(cat "/var/run/vault/mirror-registry/server_domain.pem" | base64 -w0)
+if [[ "${SELF_MANAGED_REGISTRY_CERT}" == "true" ]]; then
+    REGISTRY_CRT_CONTENT=$(cat "${CLUSTER_PROFILE_DIR}/mirror_registry_server_domain.crt" | base64 -w0)
+    REGISTRY_KEY_CONTENT=$(cat "${CLUSTER_PROFILE_DIR}/mirror_registry_server_domain.pem" | base64 -w0)
+else
+    REGISTRY_CRT_CONTENT=$(cat "/var/run/vault/mirror-registry/server_domain.crt" | base64 -w0)
+    REGISTRY_KEY_CONTENT=$(cat "/var/run/vault/mirror-registry/server_domain.pem" | base64 -w0)
+fi
 
 declare -a registry_ports=("5000" "6001" "6002")
 

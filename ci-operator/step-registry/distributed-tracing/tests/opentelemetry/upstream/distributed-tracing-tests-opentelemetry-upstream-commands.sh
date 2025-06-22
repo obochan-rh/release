@@ -14,6 +14,9 @@ git clone https://github.com/openshift/distributed-tracing-qe.git /tmp/distribut
 #Enable user workload monitoring
 oc apply -f tests/e2e-openshift/otlp-metrics-traces/01-workload-monitoring.yaml
 
+# Install Prometheus ScrapeConfig CRD
+kubectl create -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_scrapeconfigs.yaml
+
 #Set parameters for running the test cases on OpenShift
 unset NAMESPACE
 oc get nodes -l node-role.kubernetes.io/worker -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} oc label nodes {} ingress-ready=true
@@ -69,6 +72,7 @@ tests/e2e-pdb \
 tests/e2e-opampbridge \
 tests/e2e-otel \
 tests/e2e-multi-instrumentation \
+tests/e2e-targetallocator-cr \
 tests/e2e-targetallocator || any_errors=true
 
 # Set the operator args required for tests execution.

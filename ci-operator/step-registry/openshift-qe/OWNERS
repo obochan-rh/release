@@ -10,6 +10,8 @@ approvers:
   - venkataanil
 reviewers:
   - jogeo
+  - akrzos
+  - josecastillolema
   - memodi
   - mffiedler
   - paigerube14
@@ -26,3 +28,4 @@ reviewers:
   - sachinninganure
   - chaitanyaenr
   - radez
+  - capolrik

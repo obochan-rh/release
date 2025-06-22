@@ -45,6 +45,7 @@ tide:
     - jira/valid-bug
     - jira/valid-reference
     - lgtm
+    - qe-approved,no-qe
     missingLabels:
     - backports/unvalidated-commits
     - do-not-merge/hold
@@ -59,10 +60,12 @@ tide:
     - release-4.19
     labels:
     - approved
+    - backport-risk-assessed
+    - cherry-pick-approved
     - jira/valid-bug
     - jira/valid-reference
     - lgtm
-    - staff-eng-approved
+    - qe-approved,no-qe
     missingLabels:
     - backports/unvalidated-commits
     - do-not-merge/hold
